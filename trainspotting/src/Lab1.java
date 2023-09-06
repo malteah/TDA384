@@ -40,30 +40,12 @@ class Train implements Runnable{
     tsi.setSpeed(tId, tspeed);
 
     while(true){
-      SensorEvent s = tsi.getSensor(tId); 
-
-      // if(s.getYpos() == 7) {
-      //    try{
-      //     tsi.setSwitch(17, 7, 0);
-      //    } catch (Exception e) {
-      //     tsi.setSpeed(tId, 0);
-      // }
-      
-      // if(s.getYpos() == 9) {
-         
-      //   tsi.setSwitch(15, 9, 0);
-
-      // }
+      SensorEvent s = tsi.getSensor(tId);
 
       
       if(s.getYpos() == 8 && s.getXpos() ==19) {
         try {
           sem3_11.acquire();
-          
-
-            
-          
-          
           
         } catch (Exception e) {
           // TODO: handle exception
@@ -85,16 +67,14 @@ class Train implements Runnable{
   }
 }
 
+      // Boolean t_at_s1 = (s.getXpos() ==5 && s.getYpos() == 9);
+      // Boolean t_at_s2 = (s.getXpos() ==13 && s.getYpos() == 9);
+      // Boolean t_at_s3 = (s.getXpos() ==19 && s.getYpos() == 8);
+      // Boolean t_at_s4 = (s.getXpos() ==13 && s.getYpos() == 7);
 
-
-// tsi.setSwitch(15, 9, 0); byter switch vid (15,9) till höger
- 
-      //tsi.setSpeed(1,speed1);
-      //tsi.setSpeed(2,speed2);
-      //tsi.setSwitch(17,7, 0);
-      
-      //SensorEvent sensor11 = new SensorEvent(1, 17, 7, 1);
-      
-     // System.out.println(sensor11);
+      // Semaphore sem4 = new Semaphore(1); //sem15_9
+      // Semaphore sem3 = new Semaphore(1); //sem17_8
+      // Semaphore sem2 = new Semaphore(1); //sem4_9
+      // Semaphore sem1 = new Semaphore(1); //sem3_11
 
       
