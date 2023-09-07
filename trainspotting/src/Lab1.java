@@ -31,7 +31,16 @@ public class Lab1{
 class Train implements Runnable{
   int tId;
   int tspeed;
-  Semaphore sem3_11 = new Semaphore(1);
+
+  Semaphore track1 = new Semaphore(1);
+  Semaphore track2 = new Semaphore(1);
+  Semaphore track3 = new Semaphore(1);
+  Semaphore track4 = new Semaphore(1);
+  Semaphore track5 = new Semaphore(1);
+  Semaphore track6 = new Semaphore(1);
+  Semaphore track7 = new Semaphore(1);
+  Semaphore track8 = new Semaphore(1);
+
   public void run()
   { 
     try
@@ -41,22 +50,21 @@ class Train implements Runnable{
 
     while(true){
       SensorEvent s = tsi.getSensor(tId);
+      //TODO: ändra koordinater (förmodligen)
+      Boolean t_at_s1 = (s.getXpos() ==5 && s.getYpos() == 9);
+      Boolean t_at_s2 = (s.getXpos() ==13 && s.getYpos() == 9);
+      Boolean t_at_s3 = (s.getXpos() ==19 && s.getYpos() == 8);
+      Boolean t_at_s4 = (s.getXpos() ==13 && s.getYpos() == 7);
+      Boolean movingForward = (tspeed > 0);
+      Boolean movingBackward = (tspeed < 0);
 
-      
-      if(s.getYpos() == 8 && s.getXpos() ==19) {
-        try {
-          sem3_11.acquire();
-          
-        } catch (Exception e) {
-          // TODO: handle exception
-        }
-         
-        tsi.setSwitch(15, 9, 0);
+      if(t_at_s1 && movingForward) {
+        track1.acquire();
+        track3.acquire(); //wait
 
       }
 
-      
-      
+
     }
     
     
@@ -66,15 +74,5 @@ class Train implements Runnable{
   }
   }
 }
-
-      // Boolean t_at_s1 = (s.getXpos() ==5 && s.getYpos() == 9);
-      // Boolean t_at_s2 = (s.getXpos() ==13 && s.getYpos() == 9);
-      // Boolean t_at_s3 = (s.getXpos() ==19 && s.getYpos() == 8);
-      // Boolean t_at_s4 = (s.getXpos() ==13 && s.getYpos() == 7);
-
-      // Semaphore sem4 = new Semaphore(1); //sem15_9
-      // Semaphore sem3 = new Semaphore(1); //sem17_8
-      // Semaphore sem2 = new Semaphore(1); //sem4_9
-      // Semaphore sem1 = new Semaphore(1); //sem3_11
 
       

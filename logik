@@ -1,0 +1,78 @@
+if thisTrain at track 1 and moving forward // if sensor at 1 triggered
+    cap1 = 0
+    wait(cap3 == 1) //setspeed = 0
+    { //critical section
+        cap3 = 0
+        go() //setspeed > 0
+        if otherTrain at track 5 // cap5 == 0
+            choose 4 //setswitch right
+            cap4 = 0
+            cap3 = 1
+            //thisTrain is at 4
+        else
+            choose 5 //setswitch left
+            cap5 = 0
+            cap3 = 1
+            //thisTrain is at 5
+    } //end of critical section
+
+
+if thisTrain at track 2 and moving forward // if sensor at 2 triggered
+    cap2 = 0
+    wait(cap3 == 1) //setspeed = 0
+    { //critical section
+        cap3 = 0
+        go() //setspeed > 0
+        if otherTrain at track 5 // cap5 == 0
+            choose 4 //setswitch right
+            cap4 = 0
+            cap3 = 1
+            //thisTrain is at 4
+        else
+            choose 5 //setswitch left
+            cap5 = 0
+            cap3 = 1
+            //thisTrain is at 5
+    } //end of critical section
+
+
+
+if thisTrain at track 1 and moving forward // if sensor at 1 triggered
+    cap1 = 0
+    wait(cap3 == 1) //setspeed = 0
+    { //critical section
+        cap3 = 0
+        go() //setspeed > 0
+        if otherTrain at track 5 // cap5 == 0
+            choose 4 //setswitch right
+            cap4 = 0
+            cap3 = 1
+            //thisTrain is at 4
+        else
+            choose 5 //setswitch left
+            cap5 = 0
+            cap3 = 1
+            //thisTrain is at 5
+    } //end of critical section
+
+
+if thisTrain at track 2 and moving forward // if sensor at 2 triggered
+    cap2 = 0
+    wait(cap3 == 1) //setspeed = 0
+    { //critical section
+        cap3 = 0
+        go() //setspeed > 0
+        if otherTrain at track 5 // cap5 == 0
+            choose 4 //setswitch right
+            cap4 = 0
+            cap3 = 1
+            //thisTrain is at 4
+        else
+            choose 5 //setswitch left
+            cap5 = 0
+            cap3 = 1
+            //thisTrain is at 5
+    } //end of critical section
+
+
+
