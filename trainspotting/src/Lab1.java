@@ -20,10 +20,8 @@ public class Lab1{
       t2.start();
       
     }
-    catch (Exception e) {
-      System.out.println("hello");
-      //e.printStackTrace();    // or only e.getMessage() for the error
-      //System.exit(1);
+    catch(Exception e){
+    System.out.println(e);
     }
   }
 }
@@ -50,17 +48,35 @@ class Train implements Runnable{
 
     while(true){
       SensorEvent s = tsi.getSensor(tId);
-      //TODO: ändra koordinater (förmodligen)
+      //TODO: lägg in koordinater för alla sensorer, (tror inte de här är rätt) 
       Boolean t_at_s1 = (s.getXpos() ==5 && s.getYpos() == 9);
       Boolean t_at_s2 = (s.getXpos() ==13 && s.getYpos() == 9);
       Boolean t_at_s3 = (s.getXpos() ==19 && s.getYpos() == 8);
       Boolean t_at_s4 = (s.getXpos() ==13 && s.getYpos() == 7);
-      Boolean movingForward = (tspeed > 0);
-      Boolean movingBackward = (tspeed < 0);
+      
+      //TODO: sätt in nåt som funkar här (spår 4,5,7,8)
+      Boolean t_at_8 = true;
+      Boolean t_at_7 = true;
+      Boolean t_at_5 = true;
+      Boolean t_at_4 = true;
+      
 
-      if(t_at_s1 && movingForward) {
-        track1.acquire();
-        track3.acquire(); //wait
+      //TODO: sätt in nåt som funkar här
+      Boolean movingUp = true; //(sensor 1 && 2 spår 1) ELLER (sensor 1 && 2 spår 2)
+      Boolean movingDown = false; //motsvarande fast spår 7,8
+
+      //logik (förhoppningsvis)
+      if(t_at_s1 && movingUp) {
+        track1.acquire(); // vi är på spår 1
+        tsi.setSpeed(tId, 0); // vänta tills vi får tillgång till spår 3
+        track3.acquire(); // vi är på spår 3
+        tsi.setSpeed(tId, tspeed); // kör
+        track1.release(); // vi är inte längre på spår 1
+        if(t_at_5){
+          
+        }
+        
+
 
       }
 
