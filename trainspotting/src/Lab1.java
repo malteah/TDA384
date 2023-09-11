@@ -12,48 +12,47 @@ public class Lab1{
   }
   
   public Lab1(int speed1, int speed2) {
-    Semaphore sem3_11_r = new Semaphore(1);
-    Semaphore sem3_11_l = new Semaphore(1);
-    Semaphore sem15_9_r = new Semaphore(1);
-    Semaphore sem15_9_l = new Semaphore(1);
-    Semaphore sem4_9_r = new Semaphore(1);
-    Semaphore sem4_9_l = new Semaphore(1);
-    Semaphore sem17_7_r = new Semaphore(1);
-    Semaphore sem17_7_l = new Semaphore(1);
-
-    try {
+    Semaphore track1 = new Semaphore(1);
+    Semaphore track2 = new Semaphore(0);
+    Semaphore track3 = new Semaphore(1);
+    Semaphore track4 = new Semaphore(1);
+    Semaphore track5 = new Semaphore(1);
+    Semaphore track6 = new Semaphore(1);
+    Semaphore track7 = new Semaphore(1);
+    Semaphore track8 = new Semaphore(1);
+    try{
       Train Train1 = new Train();
       Train1.tId = 1;
       Train1.tspeed = speed1;
-      Train1.sem3_11_r = sem3_11_r;
-      Train1.sem3_11_l = sem3_11_l;
-      Train1.sem15_9_r = sem15_9_r;
-      Train1.sem15_9_l = sem15_9_l;
-      Train1.sem4_9_r = sem4_9_r;
-      Train1.sem4_9_l = sem4_9_l;
-      Train1.sem17_7_r = sem17_7_r;
-      Train1.sem17_7_l = sem17_7_l;
 
-
+      Train1.track1 = track1;
+      Train1.track2 = track2;
+      Train1.track3 = track3;
+      Train1.track4 = track4;
+      Train1.track5 = track5;
+      Train1.track6 = track6;
+      Train1.track7 = track7;
+      Train1.track8 = track8;
 
       Train Train2 = new Train();
       Train2.tId = 2;
       Train2.tspeed = speed2;
-      Train2.sem3_11_r = sem3_11_r;
-      Train2.sem3_11_l = sem3_11_l;
-      Train2.sem15_9_r = sem15_9_r;
-      Train2.sem15_9_l = sem15_9_l;
-      Train2.sem4_9_r = sem4_9_r;
-      Train2.sem4_9_l = sem4_9_l;
-      Train2.sem17_7_r = sem17_7_r;
-      Train2.sem17_7_l = sem17_7_l;
+
+      Train2.track1 = track1;
+      Train2.track2 = track2;
+      Train2.track3 = track3;
+      Train2.track4 = track4;
+      Train2.track5 = track5;
+      Train2.track6 = track6;
+      Train2.track7 = track7;
+      Train2.track8 = track8;
+
       Thread t1 = new Thread(Train1);
       Thread t2 = new Thread(Train2);
-
+      
 
       t1.start();
       t2.start();
-      
     }
     catch (Exception e) {
       System.out.println("hello");
@@ -66,14 +65,14 @@ public class Lab1{
 class Train implements Runnable{
   int tId;
   int tspeed;
-  Semaphore sem3_11_r;
-  Semaphore sem3_11_l;
-  Semaphore sem15_9_r;
-  Semaphore sem15_9_l;
-  Semaphore sem17_7_r;
-  Semaphore sem17_7_l;
-  Semaphore sem4_9_r;
-  Semaphore sem4_9_l;
+  Semaphore track1;
+  Semaphore track2; 
+  Semaphore track3;
+  Semaphore track4;
+  Semaphore track5;
+  Semaphore track6;
+  Semaphore track7;
+  Semaphore track8;
   //Semaphore sem3_11 = new Semaphore(1);
   
   public void toggle_switch(int sen1_x, int sen1_y, int sen2_x, int sen2_y, int swt_x, int swt_y, int dir, Semaphore sem, SensorEvent s)
@@ -156,26 +155,51 @@ class Train implements Runnable{
     {
     TSimInterface tsi = TSimInterface.getInstance();
     tsi.setSpeed(tId, tspeed);
-
+    SensorEvent s = tsi.getSensor(tId);
     while(true){
-      SensorEvent s = tsi.getSensor(tId); 
-      // Switch (17,7)
-      toggle_switch(14, 3, 19, 8 ,17 ,7 , 0, sem17_7_r,s);
-      toggle_switch(14, 5, 19, 8 ,17 ,7 , 1, sem17_7_l,s);
-      toggle_switch(14, 7, 18, 7 ,17 ,7 , 0, sem17_7_r,s);
+      s = tsi.getSensor(tId); 
+      Boolean t_at_s1_r = (s.getXpos() == 14 && s.getYpos() == 13 && s.getTrainId() == tId && s.getStatus() == 1);
+      Boolean t_at_s1_l = (s.getXpos() ==  6 && s.getYpos() == 13 && s.getTrainId() == tId && s.getStatus() == 1); // Senscor close to juntion at track 1
+      Boolean t_at_s2_r = (s.getXpos() == 14 && s.getYpos() == 11 && s.getTrainId() == tId && s.getStatus() == 1);
+      Boolean t_at_s2_l = (s.getXpos() ==  6 && s.getYpos() == 11 && s.getTrainId() == tId && s.getStatus() == 1);//  Senscor close to juntion at track 2
+      Boolean t_at_s3   = (s.getXpos() ==  1 && s.getYpos() == 10 && s.getTrainId() == tId);// Senscor at track 3
+      Boolean t_at_s4_r = (s.getXpos() == 12 && s.getYpos() == 10 && s.getTrainId() == tId);// Spår
+      Boolean t_at_s4_l = (s.getXpos() ==  7 && s.getYpos() == 10 && s.getTrainId() == tId);// Spår
+      Boolean t_at_s5_r = (s.getXpos() == 12 && s.getYpos() == 9 && s.getTrainId() == tId);// Spår
+      Boolean t_at_s5_l = (s.getXpos() ==  7 && s.getYpos() == 9 && s.getTrainId() == tId);// Spår
+      Boolean t_at_s6   = (s.getXpos() == 19 && s.getYpos() == 8 && s.getTrainId() == tId);// Spår
+      Boolean t_at_s7_r = (s.getXpos() == 14 && s.getYpos() == 8 && s.getTrainId() == tId);
+      Boolean t_at_s7_l = (s.getXpos() == 11 && s.getYpos() == 8 && s.getTrainId() == tId);
+      Boolean t_at_s7_t = (s.getXpos() == 14 && s.getYpos() == 5 && s.getTrainId() == tId);
+      Boolean t_at_s8_r = (s.getXpos() == 14 && s.getYpos() == 7 && s.getTrainId() == tId);
+      Boolean t_at_s8_l = (s.getXpos() == 11 && s.getYpos() == 7 && s.getTrainId() == tId);
+      Boolean t_at_s8_t = (s.getXpos() == 14 && s.getYpos() == 4 && s.getTrainId() == tId);
+
+      // if(t_at_s2_r)
+      // {tsi.setSpeed(tId, 0);
+      // Thread.sleep(1000);
+      // tsi.setSpeed(tId, tspeed);}
+
+      // if(t_at_s2_l)
+      // {tsi.setSpeed(tId, 0);
+      // Thread.sleep(1000);
+      // tsi.setSpeed(tId, tspeed);}
+
+
+      // //TODO: sätt in nåt som funkar här (spår 4,5,7,8)
+      Boolean t_at_8 = ((s.getYpos() == 3 || s.getYpos() == 7) && s.getTrainId() == tId);
+      Boolean t_at_7 = ((s.getYpos() == 5 || s.getYpos() == 8) && s.getTrainId() == tId);
+      //Boolean t_at_5 = (s.getYpos() ==  9 && s.getTrainId() == tId);
+      //Boolean t_at_4 = (s.getYpos() == 10 && s.getTrainId() == tId);
+      Boolean t_at_2 = (s.getYpos() == 11 && s.getTrainId() == tId);
+      Boolean t_at_1 = (s.getYpos() == 13 && s.getTrainId() == tId);
+
+      if(t_at_8)
+      {tsi.setSpeed(tId, 2);}
+      else{tsi.setSpeed(tId, 10);}
       
 
-      // Switch (15,9)
-      toggle_switch(13, 9, 19, 8 ,15 , 9, 0, sem15_9_r, s);
-      
-      // Switch(4,9)
-      
-      toggle_switch(5, 10, 2, 9, 4, 9, 0, sem4_9_r, s);
-      toggle_switch(7, 9, 2, 9 ,4 , 9, 1, sem4_9_l, s);
 
-      // Switch (3,11)
-      toggle_switch(2, 9, 2, 9 ,3 ,11 , 0, sem3_11_l,s);
-      toggle_switch(5, 13, 2, 9 ,3 , 11, 1, sem3_11_l, s);
       
 
 
