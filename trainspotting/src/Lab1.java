@@ -47,17 +47,7 @@ class Train implements Runnable{
 
     {
     TSimInterface tsi = TSimInterface.getInstance();
-    
     SensorEvent s = tsi.getSensor(tId);
-  
-    
-      
-    try {
-        track1.acquire();
-    tsi.setSpeed(tId, 10);
-    } catch (Exception e) {
-    tsi.setSpeed(tId, 0);
-      
     
     Boolean t_at_s1_r = (s.getXpos() == 14 && s.getYpos() == 13 && s.getTrainId() == tId && s.getStatus() == 1);
     Boolean t_at_s1_l = (s.getXpos() ==  6 && s.getYpos() == 13 && s.getTrainId() == tId && s.getStatus() == 1); // Senscor close to juntion at track 1
@@ -75,70 +65,47 @@ class Train implements Runnable{
     Boolean t_at_s8_r = (s.getXpos() == 14 && s.getYpos() == 7 && s.getTrainId() == tId);
     Boolean t_at_s8_l = (s.getXpos() == 11 && s.getYpos() == 7 && s.getTrainId() == tId);
     Boolean t_at_s8_t = (s.getXpos() == 14 && s.getYpos() == 4 && s.getTrainId() == tId);
-      
-     
-      
-
-
-
-
-
-      // if(s.getStatus() == 1)
-      // {
-      //   SensorEvent last_s = s; 
-      // }
-      // s = tsi.getSensor(tId);
-      // Boolean t_at_s1 = (s.getXpos() ==6 && s.getYpos() == 13 && s.getTrainId() == tId); // Senscor close to juntion at track 1
-      // Boolean t_at_s2 = (s.getXpos() ==6 && s.getYpos() == 11 && s.getTrainId() == tId);//  Senscor close to juntion at track 2
-      // Boolean t_at_s3 = (s.getXpos() ==1 && s.getYpos() == 10 && s.getTrainId() == tId);// Senscor at track 3
-      // Boolean t_at_s4_r = (s.getXpos() ==12 && s.getYpos() == 10 && s.getTrainId() == tId);// Spår
-      // Boolean t_at_s4_l = (s.getXpos() ==7 && s.getYpos() == 10 && s.getTrainId() == tId);// Spår
-      // Boolean t_at_s5_r = (s.getXpos() ==12 && s.getYpos() == 9 && s.getTrainId() == tId);// Spår
-      // Boolean t_at_s5_l = (s.getXpos() ==7 && s.getYpos() == 9 && s.getTrainId() == tId);// Spår
-      // Boolean t_at_s6 = (s.getXpos() ==  19 && s.getYpos() == 8 && s.getTrainId() == tId);// Spår
-      
-      
-      // //TODO: sätt in nåt som funkar här (spår 4,5,7,8)
-      // Boolean t_at_8 = ((s.getYpos() == 3 || s.getXpos() == 7) && s.getTrainId() == tId);
-      // Boolean t_at_7 = ((s.getYpos() == 5 || s.getXpos() == 8) && s.getTrainId() == tId);
-      // //Boolean t_at_5 = (s.getYpos() ==  9 && s.getTrainId() == tId);
-      // //Boolean t_at_4 = (s.getYpos() == 10 && s.getTrainId() == tId);
-      // Boolean t_at_2 = (s.getYpos() == 11 && s.getTrainId() == tId);
-      // Boolean t_at_1 = (s.getYpos() == 13 && s.getTrainId() == tId);
-      
-
-      // //TODO: sätt in nåt som funkar här
-      // Boolean movingUp = true; //(sensor 1 && 2 spår 1) ELLER (sensor 1 && 2 spår 2)
-      // Boolean movingDown = false; //motsvarande fast spår 7,8
-      /*
-
-
 
       
-
-      if(last_s.getXpos() == 14 && last_s.getYpos() == 3 && s.getXpos() == 15 && s.getYpos() == 7 && s.getTrainId() == tId && last_s.getTrainId()  == tId)
-      { movingUp = false;
-      movingDown = true;
-    System.out.println(movingDown);}
+      //TODO: sätt in nåt som funkar här (spår 4,5,7,8)
+      Boolean t_at_8 = ((s.getYpos() == 3 || s.getYpos() == 7) && s.getTrainId() == tId);
+      Boolean t_at_7 = ((s.getYpos() == 5 || s.getYpos() == 8) && s.getTrainId() == tId);
+      //Boolean t_at_5 = (s.getYpos() ==  9 && s.getTrainId() == tId);
+      //Boolean t_at_4 = (s.getYpos() == 10 && s.getTrainId() == tId);
+      Boolean t_at_2 = (s.getYpos() == 11 && s.getTrainId() == tId);
+      Boolean t_at_1 = (s.getYpos() == 13 && s.getTrainId() == tId);
       
-      else if(last_s.getXpos() == 14 && last_s.getYpos() == 6 && s.getXpos() == 15 && s.getYpos() == 8 && s.getTrainId() == tId && last_s.getTrainId()  == tId)
-      { movingUp = false;
-      movingDown = true;
-      System.out.println(movingDown);}
+
+      //TODO: sätt in nåt som funkar här
+      Boolean movingUp = true; //(sensor 1 && 2 spår 1) ELLER (sensor 1 && 2 spår 2)
+      Boolean movingDown = false; //motsvarande fast spår 7,8
+
       
-      else if(last_s.getXpos() == 14 && last_s.getYpos() == 11 && s.getXpos() == 6 && s.getYpos() == 11 && s.getTrainId() == tId && last_s.getTrainId()  == tId)
-      { movingUp = true;
-      movingDown = false;
-      System.out.println(movingUp);}
+      
 
-       else if(last_s.getXpos() == 14 && last_s.getYpos() == 13 && s.getXpos() == 6 && s.getYpos() == 13 && s.getTrainId() == tId && last_s.getTrainId()  == tId)
-      { movingUp = true;
-      movingDown = false;
-      System.out.println(movingUp);}
+    //   if(last_s.getXpos() == 14 && last_s.getYpos() == 3 && s.getXpos() == 15 && s.getYpos() == 7 && s.getTrainId() == tId && last_s.getTrainId()  == tId)
+    //   { movingUp = false;
+    //   movingDown = true;
+    // System.out.println(movingDown);}
+      
+    //   else if(last_s.getXpos() == 14 && last_s.getYpos() == 6 && s.getXpos() == 15 && s.getYpos() == 8 && s.getTrainId() == tId && last_s.getTrainId()  == tId)
+    //   { movingUp = false;
+    //   movingDown = true;
+    //   System.out.println(movingDown);}
+      
+    //   else if(last_s.getXpos() == 14 && last_s.getYpos() == 11 && s.getXpos() == 6 && s.getYpos() == 11 && s.getTrainId() == tId && last_s.getTrainId()  == tId)
+    //   { movingUp = true;
+    //   movingDown = false;
+    //   System.out.println(movingUp);}
 
-      else{
-        System.out.println("någon sensor är fel inskriven");
-      }
+    //    else if(last_s.getXpos() == 14 && last_s.getYpos() == 13 && s.getXpos() == 6 && s.getYpos() == 13 && s.getTrainId() == tId && last_s.getTrainId()  == tId)
+    //   { movingUp = true;
+    //   movingDown = false;
+    //   System.out.println(movingUp);}
+
+    //   else{
+    //     System.out.println("någon sensor är fel inskriven");
+    //   }
       
       //logik (förhoppningsvis)
       if(t_at_s1 && movingUp) {   // Spår 1
@@ -207,26 +174,26 @@ class Train implements Runnable{
           track6.release();
         }
         }
-      
-
-
 
       else if(t_at_8 && movingUp){ // Stanna på spår 8 och vänder
         tsi.setSpeed(tId, 0);
         Thread.sleep(1500); // sleep
         tsi.setSpeed(tId , -tspeed);
+        movingDown = true;
       }
 
       else if(t_at_7 && movingUp){ // Stanna på spår 7 och   
         tsi.setSpeed(tId, 0);
         Thread.sleep(1500); // sleep
         tsi.setSpeed(tId, -tspeed);
+        movingDown = true;
       }
 
       else if(t_at_1 && movingDown){ // Stanna på spår 1 och vänder
         tsi.setSpeed(tId, 0);
         Thread.sleep(1500); // sleep
         tsi.setSpeed(tId , tspeed);
+        movingUp = true;
         
       }
 
@@ -234,8 +201,8 @@ class Train implements Runnable{
         tsi.setSpeed(tId, 0);
         Thread.sleep(1500); // sleep
         tsi.setSpeed(tId , tspeed);
-      } */
-
+        movingUp = true;
+      }
 
     }
     
