@@ -82,7 +82,7 @@ class Train implements Runnable{
           Boolean t_at_s7_tl = (s.getXpos() == 9 && s.getYpos() == 5 && s.getTrainId() == tId && s.getStatus() == 1);
           Boolean t_at_s8_r = (s.getXpos() == 15 && s.getYpos() == 7 && s.getTrainId() == tId && s.getStatus() == 1);
           Boolean t_at_s8_l = (s.getXpos() == 11 && s.getYpos() == 7 && s.getTrainId() == tId && s.getStatus() == 1);
-          Boolean t_at_s8_t = (s.getXpos() == 14 && s.getYpos() == 4 && s.getTrainId() == tId && s.getStatus() == 1);
+          Boolean t_at_s8_t = (s.getXpos() == 14 && s.getYpos() == 3 && s.getTrainId() == tId && s.getStatus() == 1);
           Boolean t_at_s8_tl = (s.getXpos() == 6 && s.getYpos() == 6 && s.getTrainId() == tId && s.getStatus() == 1);
 
             
@@ -127,20 +127,22 @@ class Train implements Runnable{
               }
               }
 
-            if(t_at_s4_r && movingUp) {
+            if(t_at_s4_l && movingUp) {
+              track3.release();
+              s = tsi.getSensor(tId);
               tsi.setSpeed(tId, 0);
               track6.acquire();
-              track3.release();
               tsi.setSwitch(15,9,1); // sätt till vänster
               tsi.setSpeed(tId, tspeed); // kör
               s = tsi.getSensor(tId);
               track4.release();
             }
             
-            if(t_at_s5_r && movingUp) {
+            if(t_at_s5_l && movingUp) {
+              track3.release();
+              s = tsi.getSensor(tId);
               tsi.setSpeed(tId, 0);
               track6.acquire();
-              track3.release();
               tsi.setSwitch(15,9,0); // sätt till höger
               tsi.setSpeed(tId, tspeed); // kör
               s = tsi.getSensor(tId);
@@ -148,6 +150,7 @@ class Train implements Runnable{
             }
 
             if(t_at_s6 && movingUp) {
+              tsi.setSpeed(tId, 0);
               if(track7.tryAcquire(1)){
                 tsi.setSpeed(tId, 0); // vänta tills vi får tillgång till spår 5
                 tsi.setSwitch(17,7,1); // kör till vänster
@@ -158,14 +161,14 @@ class Train implements Runnable{
               else if (track8.tryAcquire(1)){
                 tsi.setSpeed(tId, 0); // vänta tills vi får tillgång till spår 4
                 tsi.setSwitch(17,7,0); // kör till höger
-                tsi.setSpeed(tId, tspeed); // kör
-                s = tsi.getSensor(tId);
+                tsi.setSpeed(tId, tspeed);
+                s = tsi.getSensor(tId); // kör
                 track6.release();
               }
               }
 
             if(t_at_s8_t && movingUp){ // Stanna på spår 8 och vänder
-              track8.acquire();
+              
               tsi.setSpeed(tId, 0);
               Thread.sleep(1500); // sleep
               tspeed = -tspeed;
@@ -221,6 +224,51 @@ class Train implements Runnable{
               track7.release(); // vi är inte längre på spår 8 
           }
 
+          
+
+
+          if(t_at_s3 && movingDown) {
+              tsi.setSpeed(tId, 0);
+              if(track2.tryAcquire(1)){
+                tsi.setSwitch(3,11,1); // kör till 2
+                tsi.setSpeed(tId, tspeed); // kör
+                s = tsi.getSensor(tId);
+                track3.release();
+              } else if (track1.tryAcquire(1)){
+                tsi.setSpeed(tId, 0); // vänta tills vi får tillgång till spår 4
+                tsi.setSwitch(3,11,0); // kör till 1
+                tsi.setSpeed(tId, tspeed); // kör
+                s = tsi.getSensor(tId);
+                track3.release();
+                track1.release();
+              }
+              }
+
+          if(t_at_s4_r && movingDown) {
+              
+              track6.release();
+              s = tsi.getSensor(tId);
+              tsi.setSpeed(tId, 0);
+              track3.acquire();
+              tsi.setSwitch(4,9,0); // sätt till höger
+              tsi.setSpeed(tId, tspeed); // kör
+              s = tsi.getSensor(tId);
+              track4.release();
+              
+            }
+            
+          if(t_at_s5_r && movingDown) {
+            track6.release();
+            
+            tsi.setSpeed(tId, 0);
+            track3.acquire();
+            ;
+            tsi.setSwitch(4,9,1); // sätt till vänster
+            tsi.setSpeed(tId, tspeed); // kör
+            s = tsi.getSensor(tId);
+            track5.release();
+            }
+          
           if(t_at_s6 && movingDown) {
             tsi.setSpeed(tId, 0);
               if(track5.tryAcquire(1)){
@@ -236,43 +284,7 @@ class Train implements Runnable{
               }
               }
 
-          if(t_at_s4_l && movingDown) {
-              tsi.setSpeed(tId, 0);
-              track3.acquire();
-              track6.release();
-              tsi.setSwitch(4,9,0); // sätt till höger
-              tsi.setSpeed(tId, tspeed); // kör
-              s = tsi.getSensor(tId);
-              track4.release();
-              
-            }
-            
-          if(t_at_s5_l && movingDown) {
-            tsi.setSpeed(tId, 0);
-            track3.acquire();
-            track6.release();
-            tsi.setSwitch(4,9,1); // sätt till vänster
-            tsi.setSpeed(tId, tspeed); // kör
-            s = tsi.getSensor(tId);
-            track5.release();
-            }
-
-          if(t_at_s3 && movingDown) {
-              if(track2.tryAcquire(1)){
-                tsi.setSpeed(tId, 0); // vänta tills vi får tillgång till spår 5
-                tsi.setSwitch(3,11,1); // kör till 2
-                tsi.setSpeed(tId, tspeed); // kör
-                s = tsi.getSensor(tId);
-                track3.release();
-              } else if (track1.tryAcquire(1)){
-                tsi.setSpeed(tId, 0); // vänta tills vi får tillgång till spår 4
-                tsi.setSwitch(3,11,0); // kör till 1
-                tsi.setSpeed(tId, tspeed); // kör
-                s = tsi.getSensor(tId);
-                track3.release();
-                track1.release();
-              }
-              }
+          
 
           
         }
