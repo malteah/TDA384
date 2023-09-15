@@ -96,11 +96,12 @@ class Train implements Runnable{
         try
         {
           try { // Handeling relising semaphors
-            if  (s.getStatus() == 1) // && !t_at_s3 && !t_at_s6
+            if  (s.getStatus() == 1 && !t_at_s3 && !t_at_s6 && !(t_at_s4_l && movingDown) && !(t_at_s4_r && movingUp) && !(t_at_s5_l && movingUp) && !(t_at_s5_r&& movingUp)) // && !t_at_s3 && !t_at_s6
             {
               curretSemaphore.release();
               curretSemaphore = null;
             } 
+            
           } catch (Exception e) {
                 // TODO: handle exception
               }
@@ -146,6 +147,7 @@ class Train implements Runnable{
         if(t_at_s4_r && movingUp){ // Train approaching end of track 4
           tsi.setSpeed(tId, 0);
           track6.acquire();
+          pastSemaphore = curretSemaphore;
           curretSemaphore = track6;
           tsi.setSwitch(15,9,1);
           tsi.setSpeed(tId, tspeed); 
@@ -158,6 +160,7 @@ class Train implements Runnable{
         if(t_at_s5_r && movingUp){ // Train approaching end of track 5
           tsi.setSpeed(tId, 0);
           track6.acquire();
+          pastSemaphore = curretSemaphore;
           curretSemaphore = track6;
           tsi.setSwitch(15,9,0); 
           tsi.setSpeed(tId, tspeed); 
@@ -166,6 +169,7 @@ class Train implements Runnable{
         
 
         if(t_at_s6 && movingUp) { // Train at track6
+          pastSemaphore.release();
           tsi.setSpeed(tId, 0);
           //TODO: kan inte släppa båda semaphores
           if(track7.tryAcquire(1)){ // Trying track 7 
@@ -203,7 +207,7 @@ class Train implements Runnable{
 
           if(t_at_s7_l && movingUp)
           {
-            
+            track6.release();
             tsi.setSpeed(tId, 0);
             intersection.acquire();
             curretSemaphore = intersection;
