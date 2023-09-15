@@ -69,10 +69,7 @@ class Train implements Runnable{
         tsi.setSpeed(tId, tspeed);
         SensorEvent s = tsi.getSensor(tId);
 
-        
-        
-
-          
+  
         // One variable for every Sensor, True when it is the last passed sensor
         Boolean t_at_s1_r = (s.getXpos() == 14 && s.getYpos() == 13 && s.getTrainId() == tId && s.getStatus() == 1);
         Boolean t_at_s1_l = (s.getXpos() ==  6 && s.getYpos() == 13 && s.getTrainId() == tId && s.getStatus() == 1);
@@ -85,21 +82,25 @@ class Train implements Runnable{
         Boolean t_at_s5_l = (s.getXpos() ==  7 && s.getYpos() == 9 && s.getTrainId() == tId && s.getStatus() == 1);
         Boolean t_at_s6   = (s.getXpos() == 19 && s.getYpos() == 8 && s.getTrainId() == tId && s.getStatus() == 1);
         Boolean t_at_s7_r = (s.getXpos() == 15 && s.getYpos() == 8 && s.getTrainId() == tId && s.getStatus() == 1);
-        Boolean t_at_s7_l = (s.getXpos() == 10 && s.getYpos() == 8 && s.getTrainId() == tId && s.getStatus() == 1);
+        Boolean t_at_s7_l = (s.getXpos() == 11 && s.getYpos() == 8 && s.getTrainId() == tId && s.getStatus() == 1);
         Boolean t_at_s7_t = (s.getXpos() == 14 && s.getYpos() == 5 && s.getTrainId() == tId && s.getStatus() == 1);
         Boolean t_at_s7_tl = (s.getXpos() == 8 && s.getYpos() == 5 && s.getTrainId() == tId && s.getStatus() == 1);
         Boolean t_at_s8_r = (s.getXpos() == 15 && s.getYpos() == 7 && s.getTrainId() == tId && s.getStatus() == 1);
-        Boolean t_at_s8_l = (s.getXpos() == 10 && s.getYpos() == 7 && s.getTrainId() == tId && s.getStatus() == 1);
+        Boolean t_at_s8_l = (s.getXpos() == 11 && s.getYpos() == 7 && s.getTrainId() == tId && s.getStatus() == 1);
         Boolean t_at_s8_t = (s.getXpos() == 14 && s.getYpos() == 3 && s.getTrainId() == tId && s.getStatus() == 1);
         Boolean t_at_s8_tl = (s.getXpos() == 6 && s.getYpos() == 6 && s.getTrainId() == tId && s.getStatus() == 1);
         
         try
         {
           try { // Handeling relising semaphors
-            if  (s.getStatus() == 1 && !t_at_s3 && !t_at_s6 && !(t_at_s4_l && movingDown) && !(t_at_s4_r && movingUp) && !(t_at_s5_l && movingUp) && !(t_at_s5_r&& movingUp)) // && !t_at_s3 && !t_at_s6
-            {
-              curretSemaphore.release();
-              curretSemaphore = null;
+            if  (s.getStatus() == 1)
+            { 
+              
+              
+                pastSemaphore.release();
+                pastSemaphore = null;
+              
+              
             } 
             
           } catch (Exception e) {
@@ -108,7 +109,8 @@ class Train implements Runnable{
 
         if(t_at_s1_l && movingUp) {    // Train at track1 and moving upwards
           tsi.setSpeed(tId, 0); 
-          track3.acquire();   
+          track3.acquire();  
+          pastSemaphore = curretSemaphore;  
           curretSemaphore = track3;         
           tsi.setSwitch(3,11, 0);  
           tsi.setSpeed(tId, tspeed);  
@@ -119,46 +121,46 @@ class Train implements Runnable{
         if(t_at_s2_l && movingUp) {   // Train at track2 and moving upwards
           tsi.setSpeed(tId, 0); 
           track3.acquire(); 
+          pastSemaphore = curretSemaphore; // Track2
           curretSemaphore = track3;
           tsi.setSwitch(3,11,1); 
-          tsi.setSpeed(tId, tspeed); 
-         // s = tsi.getSensor(tId);
-          //track2.release(); 
+          tsi.setSpeed(tId, tspeed);  
         }
 
         if(t_at_s3 && movingUp) { // Train at track3 moving upwards
           tsi.setSpeed(tId, 0); 
           if(track5.tryAcquire(1)){ // Train preoratize track5 and try going there first
+            pastSemaphore = curretSemaphore;  // Track3
             curretSemaphore = track5;
             tsi.setSwitch(4,9,1); 
             tsi.setSpeed(tId, tspeed);
-            //s = tsi.getSensor(tId);
           } else { // If track5 s ocupide then the train runns on track 4
+            pastSemaphore = curretSemaphore;
             tsi.setSwitch(4,9,0); 
             tsi.setSpeed(tId, tspeed); 
-            //s = tsi.getSensor(tId);
+          
           }
         }
 
         // if(t_at_s4_l && movingUp) { // Once train is on track 4 relise the track3 semaphore
-        //   track3.release();
+        //   pastSemaphore = curretSemaphore; 
         // }
 
         if(t_at_s4_r && movingUp){ // Train approaching end of track 4
           tsi.setSpeed(tId, 0);
           track6.acquire();
-          pastSemaphore = curretSemaphore;
           curretSemaphore = track6;
           tsi.setSwitch(15,9,1);
           tsi.setSpeed(tId, tspeed); 
         }
         
         // if(t_at_s5_l && movingUp) { // Train at track5
-        //   track3.release();
+        //   pastSemaphore = curretSemaphore; 
         // }
 
         if(t_at_s5_r && movingUp){ // Train approaching end of track 5
           tsi.setSpeed(tId, 0);
+          
           track6.acquire();
           pastSemaphore = curretSemaphore;
           curretSemaphore = track6;
@@ -169,61 +171,36 @@ class Train implements Runnable{
         
 
         if(t_at_s6 && movingUp) { // Train at track6
-          pastSemaphore.release();
           tsi.setSpeed(tId, 0);
-          //TODO: kan inte släppa båda semaphores
           if(track7.tryAcquire(1)){ // Trying track 7 
+            pastSemaphore = curretSemaphore; 
             curretSemaphore = track7;
             tsi.setSwitch(17,7,1); 
             tsi.setSpeed(tId, tspeed); 
-            // s = tsi.getSensor(tId);
-            // track6.release();
-            // s = tsi.getSensor(tId);
-            // tsi.setSpeed(tId, 0);
-            // intersection.acquire();
-            // tsi.setSpeed(tId, tspeed); 
-            // s = tsi.getSensor(tId); 
-            // intersection.release();
           }
-        
+      
           else{ // If 7 is busy then try track 8
+            pastSemaphore = curretSemaphore; 
             tsi.setSwitch(17,7,0); 
-            tsi.setSpeed(tId, tspeed);
-            // s = tsi.getSensor(tId); 
-            // track6.release();
-            // s=tsi.getSensor(tId); 
-            // tsi.setSpeed(tId, 0);
-            // intersection.acquire();
-            // tsi.setSpeed(tId, tspeed); 
-            // s = tsi.getSensor(tId); 
-            // intersection.release(); 
+            tsi.setSpeed(tId, tspeed); 
           }
 
-          if(t_at_s7_r && movingUp){
-
-            Thread.sleep(2000);
-            track6.release();
-          }
-
-          if(t_at_s7_l && movingUp)
+          if(t_at_s7_l && movingUp) // 11, 7
           {
-            track6.release();
             tsi.setSpeed(tId, 0);
+            Thread.sleep(1000);
             intersection.acquire();
-            curretSemaphore = intersection;
-            tsi.setSpeed(tId, tspeed);
-          }
-
-          if(t_at_s8_r && movingUp){
-            track6.release();
-          }
-
-          if(t_at_s8_l && movingUp)
-          {
             
+            pastSemaphore = intersection;
+            tsi.setSpeed(tId, tspeed);
+          }
+
+          if(t_at_s8_l && movingUp) // 11,8
+          {
             tsi.setSpeed(tId, 0);
+            Thread.sleep(1000);
             intersection.acquire();
-            curretSemaphore = intersection;
+            pastSemaphore = intersection;
             tsi.setSpeed(tId, tspeed);
           }
 
@@ -267,96 +244,79 @@ class Train implements Runnable{
         if(t_at_s3 && movingDown) { // At Track3 downwards 
             tsi.setSpeed(tId, 0);
             if(track2.tryAcquire(1)){ // Trying track 2
+              pastSemaphore = curretSemaphore; 
               curretSemaphore = track2;
               tsi.setSwitch(3,11,1); 
-              tsi.setSpeed(tId, tspeed); 
-              // s = tsi.getSensor(tId);
-              // s = tsi.getSensor(tId);
-              // track3.release();
-            } else { // If not track 1 then try track 1
+              tsi.setSpeed(tId, tspeed);
+            } 
+            else { // If not track 1 then try track 1
+              pastSemaphore = curretSemaphore; 
               tsi.setSpeed(tId, 0); 
               tsi.setSwitch(3,11,0); 
               tsi.setSpeed(tId, tspeed); 
-              // s = tsi.getSensor(tId);
-              // s = tsi.getSensor(tId);
-              // track3.release();
-              
             }
         }
 
+        if(t_at_s4_r && movingDown)
+        {
+          pastSemaphore = curretSemaphore; // track6
+        }
+
         if(t_at_s4_l && movingDown) {// At track 4 moving downwards
-            // track6.release();
-            // s = tsi.getSensor(tId);
             tsi.setSpeed(tId, 0);
             track3.acquire();
             curretSemaphore = track3;
             tsi.setSwitch(4,9,0); 
-            tsi.setSpeed(tId, tspeed); 
-            // s = tsi.getSensor(tId);
-            // track4.release();
-            
+            tsi.setSpeed(tId, tspeed);
         }
-          
+        if(t_at_s5_r && movingDown)
+        {
+          pastSemaphore = curretSemaphore; //track6
+        }  
+
         if(t_at_s5_l && movingDown) { // At track 5 moving downwards
-          //track6.release();
-          
           tsi.setSpeed(tId, 0);
-          
-          
           track3.acquire();
+
           curretSemaphore = track3;
-          
           tsi.setSwitch(4,9,1); 
           tsi.setSpeed(tId, tspeed); 
-          // s = tsi.getSensor(tId);
-          // track5.release();
         }
         
         if(t_at_s6 && movingDown) { // At track 6 moving downwards
           tsi.setSpeed(tId, 0);
             if(track5.tryAcquire(1)){ // Trying for track 5
-              curretSemaphore = track6; 
+              pastSemaphore = curretSemaphore; 
+              curretSemaphore = track5; 
               tsi.setSwitch(15,9,0); 
               tsi.setSpeed(tId, tspeed); // kör             
             } else { // If not 5 then try 4
-                
               tsi.setSwitch(15,9,1); 
               tsi.setSpeed(tId, tspeed); 
-              // s = tsi.getSensor(tId);
             }
         }
 
         if(t_at_s7_tl && movingDown) {  // At track 7 moving downwards, watching out for the intersection
           tsi.setSpeed(tId, 0); 
           intersection.acquire();
-          curretSemaphore = intersection;
-          tsi.setSpeed(tId, tspeed); 
-          // s = tsi.getSensor(tId);
-          // intersection.release();
+          pastSemaphore = intersection;
+          tsi.setSpeed(tId, tspeed);
         }
 
         if(t_at_s7_r && movingDown) {  // At track 4 moving downwards
             tsi.setSpeed(tId, 0); 
             track6.acquire();
+            pastSemaphore = curretSemaphore;
             curretSemaphore = track6;
             tsi.setSwitch(17,7,1); 
-            // tsi.setSpeed(tId, tspeed);
-            // s = tsi.getSensor(tId);
-            // track7.release(); 
-        }
-
-        if(movingDown){
-          tsi.setSpeed(tId, 0);
         }
 
         if(t_at_s8_tl && movingDown) {    // At track 8 moving downwards, watching out for the intersection
             tsi.setSpeed(tId, 0); 
-            
             intersection.acquire();
-            curretSemaphore = intersection;
+            pastSemaphore = intersection;
             tsi.setSpeed(tId, tspeed); 
-            // s = tsi.getSensor(tId);
-            // intersection.release();
+            
         }
 
         if(t_at_s8_r && movingDown){ // At track 8 moving downwards
@@ -365,8 +325,6 @@ class Train implements Runnable{
             curretSemaphore = track6;
             tsi.setSwitch(17,7,0); 
             tsi.setSpeed(tId, tspeed); 
-           
-            // track8.release();  
         }
           }
           catch(Exception e){
