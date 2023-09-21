@@ -61,15 +61,6 @@ public class ForkJoinSolver
         this.forkAfter = forkAfter;
     }
 
-    public ForkJoinSolver(Maze maze, int start_node, int fork_no)
-    {
-        this(maze);
-        this.fork_no = fork_no;
-        this.start = start_node;
-    }
-
-
-
     /**
      * Searches for and returns the path, as a list of node
      * identifiers, that goes from the start node to a goal node in
@@ -114,51 +105,54 @@ public class ForkJoinSolver
                     // for every node nb adjacent to current
                     
                     System.out.printf("Grannar %s \n \n", maze.neighbors(current));
+                    
                     int count = 0;
                     for (int nb: maze.neighbors(current)) 
                     {
+
                         if (!visited.contains(nb))
                         {
-
                             predecessor.put(nb, current);
+                        }
+                        frontier.push(nb);
+                        ForkJoinSolver sol = new ForkJoinSolver(maze);
+
+                        // add nb to the nodes to be processed
                         
-                            ForkJoinSolver sol = new ForkJoinSolver(maze, current, count);
+                        // if nb has not been already visited,
+                        // nb can be reached from current (i.e., current is nb's predecessor)
+                        if (count == 0)
+                        {
+                            //frontier.push(nb);
+                            System.out.printf("Framför: %s\n", frontier);
+                            System.out.println("Lagt till i frontier");
+                        }
 
-                            // add nb to the nodes to be processed
-                            
-                            // if nb has not been already visited,
-                            // nb can be reached from current (i.e., current is nb's predecessor)
-                            if (count == 0)
-                            {
-                                frontier.push(nb);
-                                System.out.println("Laggt till i frontier");
-                            }
-
-                            else if (count == 1)
-                            {
-                                sol.fork();
-                                //sol.compute();
-                                //sol.join();
-
-                            }
-
-                            else if (count == 2)
-                            {
-                                sol.fork();
-                                //sol.compute();
-                                sol.join();
-
-                            }
-
-                            // else if (count == 3)
-                            // {
-                            //     sol.fork();
-                            //     //sol.compute();
-                            //     sol.join();
+                        else if (count == 1)
+                        {
+                            sol.start = frontier.pop();
+                            sol.fork();
 
                             
-                            count = count + 1;    
-                            }
+                            
+                        }
+
+                        else if (count == 2)
+                        {
+                            sol.start = frontier.pop();
+                            sol.fork();
+
+                        }
+
+                        // else if (count == 3)
+                        // {
+                        //     sol.fork();
+                        //     //sol.compute();
+                        //     sol.join();
+
+                        
+                        count = count + 1;    
+                        
                     }   
                 } 
             }
