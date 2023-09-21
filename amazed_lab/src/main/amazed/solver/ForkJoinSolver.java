@@ -4,6 +4,7 @@ import amazed.maze.Maze;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
@@ -36,6 +37,8 @@ public class ForkJoinSolver
     private int fork_no = 0;
     static ConcurrentSkipListSet<Integer> visited = new ConcurrentSkipListSet<Integer>();
     static ConcurrentHashMap<Integer,Integer> precedessor = new ConcurrentHashMap<Integer, Integer>();
+    List<ForkJoinSolver> forks= new ArrayList<ForkJoinSolver>();
+    private boolean move = false;
     
 
      public ForkJoinSolver(Maze maze)
@@ -80,12 +83,12 @@ public class ForkJoinSolver
             System.out.printf("Start: %s\n" , start);
             System.out.printf("Framfor: %s\n", frontier);
             System.out.printf("Fork number: %s \n", fork_no);
-           
+            
             int player = maze.newPlayer(start);     // start with start node
             frontier.push(start);       // as long as not all nodes have been processed
             
             while (!frontier.empty()) 
-            {        // get the new node to process
+            {      // get the new node to process
                 int current = frontier.pop();
                 // if current node has a goal
                 if (maze.hasGoal(current)) 
@@ -105,60 +108,62 @@ public class ForkJoinSolver
                     // for every node nb adjacent to current
                     
                     System.out.printf("Grannar %s \n \n", maze.neighbors(current));
+                    System.out.printf("Framför %s \n \n", frontier);
+
                     
-                    int count = 0;
-                    for (int nb: maze.neighbors(current)) 
+                    List<Integer> nb_list = new ArrayList<>(maze.neighbors(current));
+                    if(maze.neighbors(current).size() == 1)
                     {
-
-                        if (!visited.contains(nb))
+                        frontier.push(nb_list.get(0));
+                        if (!visited.contains(nb_list.get(0)))
                         {
-                            predecessor.put(nb, current);
+                            predecessor.put(nb_list.get(0), current);
                         }
-                        frontier.push(nb);
-                        ForkJoinSolver sol = new ForkJoinSolver(maze);
+                    }
 
-                        // add nb to the nodes to be processed
+                    else if(maze.neighbors(current).size() == 2)
+                    {
+                        frontier.push(nb_list.get(0));
+                        frontier.push(nb_list.get(1));
+
+                        if (!visited.contains(nb_list.get(0)))
+                        {
+                            predecessor.put(nb_list.get(0), current);
+                        }
+
+                        if (!visited.contains(nb_list.get(1)))
+                        {
+                            predecessor.put(nb_list.get(1), current);
+                        }
+
+                        ForkJoinSolver sol1 = new ForkJoinSolver(maze);
+                        ForkJoinSolver sol2 = new ForkJoinSolver(maze);
+
+                        sol1.start = frontier.pop();
                         
-                        // if nb has not been already visited,
-                        // nb can be reached from current (i.e., current is nb's predecessor)
-                        if (count == 0)
-                        {
-                            //frontier.push(nb);
-                            System.out.printf("Framför: %s\n", frontier);
-                            System.out.println("Lagt till i frontier");
-                        }
 
-                        else if (count == 1)
-                        {
-                            sol.start = frontier.pop();
-                            sol.fork();
-
-                            
-                            
-                        }
-
-                        else if (count == 2)
-                        {
-                            sol.start = frontier.pop();
-                            sol.fork();
-
-                        }
-
-                        // else if (count == 3)
-                        // {
-                        //     sol.fork();
-                        //     //sol.compute();
-                        //     sol.join();
-
+                        sol1.fork();
                         
-                        count = count + 1;    
-                        
-                    }   
+
+
+                    }
+
                 } 
+            }
+            
+            if(forks.size() != 0);
+            {
+                for( ForkJoinSolver fork: forks)
+                {
+                    fork.join();
+                }
+
+
             }
             return path;
         }else
-        {
+        {   
+
             return null;
         }
         
