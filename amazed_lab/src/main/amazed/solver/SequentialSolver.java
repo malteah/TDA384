@@ -130,6 +130,8 @@ public class SequentialSolver
                 // move player to goal
                 maze.move(player, current);
                 // search finished: reconstruct and return path
+                System.out.printf("Start %s, Goal %s", start, current);
+                System.out.println(pathFromTo(start, current));
                 return pathFromTo(start, current);
             }
             // if current node has not been visited yet
@@ -147,6 +149,8 @@ public class SequentialSolver
                     if (!visited.contains(nb))
                         predecessor.put(nb, current);
                 }
+
+                
             }
         }
         // all nodes explored, no goal found
