@@ -97,57 +97,64 @@ public class ForkJoinSolver
      */
     @Override
     public List<Integer> compute()
-    {
-            
-            int player = maze.newPlayer(new_start);     // start with start node
-            frontier.push(new_start);       // as long as not all nodes have been processed
-            
-            while (!frontier.empty()) 
-            {      // get the new node to process
-                int current = frontier.pop();
-                // if current node has a goal
-                if (maze.hasGoal(current)) 
-                {
-                    // move player to goal
-                    maze.move(player, current);
-                    // search finished: reconstruct and return path
-                    
-                    goal_node = current;
-                    System.out.printf("Start %s, Goal %s", start, current);
-                    break;
-                    //return pathFromTo(start, current);
-                    //return pathFromTo(start, current);
-                }
-                // if current node has not been visited yet
-                if (visited.add(current)) 
-                {
-                    // move player to current node
-                    maze.move(player, current);
-                    // mark node as visited
-                    // for every node nb adjacent to current
-                
-                    int count = 1;
-                    for (int nb: maze.neighbors(current)) 
-                    {   //System.out.printf("Granne %s", nb);
-                        if (!visited.contains(nb)){
-                            predecessor.put(nb, current); 
-                            if(count == 1 && !visited.contains(nb) )
-                            {
-                                frontier.push(nb); 
-                            }
+    {       
 
-                            if(count > 1 && !visited.contains(nb))
-                            {
-                                ForkJoinSolver sol = new ForkJoinSolver(maze);
-                                sol.new_start = nb;
-                                sol.fork();
-                                forks.add(sol);
+            if (!visited.contains(new_start))
+            {
+                int player = maze.newPlayer(new_start);     // start with start node
+                frontier.push(new_start);       // as long as not all nodes have been processed
 
-                            }
-                            count = count + 1;
-                        }          
+            
+            
+                while (!frontier.empty()) 
+                {      // get the new node to process
+                    int current = frontier.pop();
+                    // if current node has a goal
+                    if (maze.hasGoal(current)) 
+                    {
+                        // move player to goal
+                        maze.move(player, current);
+                        // search finished: reconstruct and return path
+                        
+                        goal_node = current;
+                        System.out.printf("Start %s, Goal %s", start, current);
+                        break;
+                        //return pathFromTo(start, current);
+                        //return pathFromTo(start, current);
                     }
-                } 
+                    // if current node has not been visited yet
+                    if (visited.add(current)) 
+                    {
+                        // move player to current node
+                        maze.move(player, current);
+                        // mark node as visited
+                        // for every node nb adjacent to current
+                    
+                        int count = 1;
+                        for (int nb: maze.neighbors(current)) 
+                        {   //System.out.printf("Granne %s", nb);
+                            if (!visited.contains(nb)){
+                                predecessor.put(nb, current); 
+                                if(count == 1 && !visited.contains(nb) )
+                                {
+                                    frontier.push(nb); 
+                                    count = count + 1;
+                                }
+
+                                else if(count > 1 && !visited.contains(nb))
+                                {
+                                    ForkJoinSolver sol = new ForkJoinSolver(maze);
+                                    sol.new_start = nb;
+                                    sol.fork();
+                                    forks.add(sol);
+                                    count = count + 1;
+
+                                }
+                                
+                            }          
+                        }
+                    } 
+                }
             }
         
         if(!forks.isEmpty());
