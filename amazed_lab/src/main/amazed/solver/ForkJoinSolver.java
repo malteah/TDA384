@@ -33,6 +33,7 @@ public class ForkJoinSolver
      * @param maze   the maze to be searched
      */
     public static int stop = 10;
+    static int goal_node = 0;
     //public List<Integer> path = new ArrayList<>();
     public int start_node = start;
     static ConcurrentSkipListSet<Integer> visited = new ConcurrentSkipListSet<Integer>();
@@ -97,7 +98,7 @@ public class ForkJoinSolver
     @Override
     public List<Integer> compute()
     {
-            System.out.println( start);
+            
             int player = maze.newPlayer(new_start);     // start with start node
             frontier.push(new_start);       // as long as not all nodes have been processed
             
@@ -111,35 +112,31 @@ public class ForkJoinSolver
                     maze.move(player, current);
                     // search finished: reconstruct and return path
                     
-                    goal = current;
+                    goal_node = current;
                     System.out.printf("Start %s, Goal %s", start, current);
                     break;
                     //return pathFromTo(start, current);
                     //return pathFromTo(start, current);
                 }
                 // if current node has not been visited yet
-                if (!visited.contains(current)) 
+                if (visited.add(current)) 
                 {
                     // move player to current node
                     maze.move(player, current);
-                    
                     // mark node as visited
-                    visited.add(current);
                     // for every node nb adjacent to current
-                    
-                    
+                
                     int count = 1;
-                    
                     for (int nb: maze.neighbors(current)) 
                     {   //System.out.printf("Granne %s", nb);
                         if (!visited.contains(nb)){
                             predecessor.put(nb, current); 
-                            if(count == 1)
+                            if(count == 1 && !visited.contains(nb) )
                             {
                                 frontier.push(nb); 
                             }
 
-                            if(count > 1)
+                            if(count > 1 && !visited.contains(nb))
                             {
                                 ForkJoinSolver sol = new ForkJoinSolver(maze);
                                 sol.new_start = nb;
@@ -157,19 +154,12 @@ public class ForkJoinSolver
         {
             for( ForkJoinSolver fork: forks)
             {   
-                if(fork.goal != 0)
-                {
-                    goal = fork.goal;
-                    System.out.printf("goal passed %s", goal);
-                }
-                
                 fork.join();   
-                
             }
-            forks.clear();
+            
         }
         
-        return pathFromTo(start, goal);
+        return pathFromTo(start, goal_node);
         
     }
 }
