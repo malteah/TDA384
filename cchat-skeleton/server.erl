@@ -33,6 +33,10 @@ handel(Server , {join, Chanel, Client}) ->
         {reply, joined, [Chanel | Server]}
 
     end;
+
+handel(Server, disconnect) ->
+    lists:foreach(fun(chanel)  -> genserver:stop(list_to_atom(chanel)) end, Server),
+    {reply, ok, []};
         
 
 handel(Server, stop_server) ->
@@ -95,5 +99,5 @@ chanel_handeler(Clients, {msg, Channel, Nick, Msg, Sender}) ->
 % together with any other associated processes
 stop(ServerAtom) ->
     % TODO Implement function
-    genserver:request(ServerAtom, disconk),
+    genserver:request(ServerAtom, disconnect),
     genserver:stop(ServerAtom).
