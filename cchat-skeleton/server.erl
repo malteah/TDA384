@@ -14,18 +14,17 @@ start(ServerAtom) ->
     % - Return the process ID
     genserver:start(ServerAtom, [],fun  handel/2).
 
-
 handel(Server, {Client,join, Chanel}) ->
     ChannelExists = lists:member(Chanel, Server),
     if
         ChannelExists == true ->
-        RequestJoin = genserver:request(list_to_atom(Chanel), {join, Client}), %try to join
-        if
-            RequestJoin == approved ->
-            {reply, approved, Server}; %Client not in channel
-            true -> %else
-            {reply, denied, Server} %Client is in channel
-        end;
+            RequestJoin = genserver:request(list_to_atom(Chanel), {join, Client}), %try to join
+            if
+                RequestJoin == approved ->
+                    {reply, approved, Server}; %Client not in channel
+                true -> %else
+                    {reply, denied, Server} %Client is in channel
+            end;
         true -> %if channel doesn't exist: create a new channel
         genserver:start(list_to_atom(Chanel), [Client], fun chanel_handeler/2),
         {reply, approved, [Chanel | Server]}

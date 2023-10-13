@@ -30,12 +30,23 @@ initial_state(Nick, GUIAtom, ServerAtom) ->
 
 % Join channel
 handle(St, {join, Channel}) ->
-    RequestJoin = genserver:request(St#client_st.server, {self(),join,Channel}),
-    if
-        RequestJoin == approved -> %adds the channel to clients channels
-            {reply, ok, St#client_st{channels = [Channel | St#client_st.channels]}};
-        true -> %else (denied)
-            {reply, {error,user_already_joined,"You are already in this channel"}, St}
+    try
+        ServerExists = lists:member(St#client_st.server,registered()),
+        if 
+            ServerExists == false ->
+                {reply, {error,server_not_reached,"Server does not exist"},St};
+            ServerExists == true -> 
+                RequestJoin = genserver:request(St#client_st.server, {self(),join,Channel}),
+                if
+                    RequestJoin == approved -> %adds the channel to clients channels
+                        {reply, ok, St#client_st{channels = [Channel | St#client_st.channels]}};
+                    RequestJoin == denied -> %else (denied)
+                        {reply, {error,user_already_joined,"You are already in this channel"}, St}
+                end
+            end
+    catch
+        throw:timeout_error ->
+            {reply, {error,server_not_reached,"Attempt to join timed out"}, St}
     end;
 
 % Leave channel
