@@ -38,32 +38,17 @@ handle(St, {join, Channel}) ->
             {reply, {error,user_already_joined,"You are already in this channel"}, St}
     end;
 
-  
-%     % TODO: Implement this function
-    % If channel dont exist creat it and get a Welcom to server back
-    % Reply OK to GUI
-
-    % Else Join chanel and get Welcom messege
-    %{reply, ok, St};
-    %{reply, {error, not_implemented, "join not implemented"}, St} ;
-
 % Leave channel
 handle(St, {leave, Channel}) ->
-    % TODO: Implement this function
-    ClientInChannel = lists:member(Channel,St#client_st.channels),
+    TryLeave = genserver:request(list_to_atom(Channel), {leave, self()}),
     if
-         ClientInChannel == true ->
-            lists:delete(Channel, St#client_st.channels),
-            {reply,ok,St};
-        true -> %else
-            {reply,ok,St}
+        TryLeave == success -> 
+            {reply, ok, St};
+        TryLeave == fail ->
+            {reply, {error,user_not_joined,"You have not joined this channel"}, St}
     end;
-    
-    %{reply, {error, not_implemented, "leave not implemented"}, St} ;
 
 % Sending message (from GUI, to channel)
-
-
 handle(St, {message_send, Channel, Msg}) ->
   Answer = genserver:request(list_to_atom(Channel), {msg, Channel, St#client_st.nick, Msg, self()}),
   case Answer of

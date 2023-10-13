@@ -31,15 +31,10 @@ handel(Server, {Client,join, Chanel}) ->
         {reply, approved, [Chanel | Server]}
     end;
 
-% handel(Server, disconnect) ->
-%     lists:foreach(fun(chanel)  -> genserver:stop(list_to_atom(chanel)) end, Server),
-%     {reply, ok, []};
-        
-    handel(Server, kill_channels) ->
-        lists:foreach(fun(Ch) -> genserver:stop(list_to_atom(Ch)) end, Server),
-        {reply, ok, []}.
 
-
+handel(Server, kill_channels) ->
+    lists:foreach(fun(Ch) -> genserver:stop(list_to_atom(Ch)) end, Server),
+    {reply, ok, []}.
 
 
 chanel_handeler(Clients, {join, Client}) ->
@@ -49,6 +44,15 @@ case lists:member(Client, Clients) of
     %Client not in channel
     false -> {reply, approved, [Client | Clients]}
 end;
+
+chanel_handeler(Clients, {leave, Client}) -> 
+    case lists:member(Client, Clients) of
+    %Client is in channel
+    true -> {reply, success, lists:delete(Client,Clients)};
+    %Client not in channel
+    false -> {reply, fail, Clients}
+end;
+
 
 chanel_handeler(Clients, {msg, Channel, Nick, Msg, Sender}) ->
     case lists:member(Sender, Clients) of
