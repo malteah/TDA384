@@ -15,39 +15,33 @@ start(ServerAtom) ->
     genserver:start(ServerAtom, [],fun  handel/2).
 
 
-handel(Server , {join, Chanel, Client}) ->
-    io:format("handel server join"),
-    
-    case lists:member(Chanel, Server) of
-        % Join server
-        true ->
-            Join_server = genserver:request(list_to_atom(Chanel), {join, Client}),
-
-            case Join_server of 
-                joined -> {reply, joined, Server};
-                failed -> {reply, failed, Server}
-            end;
-
-        false  -> 
+handel(Server, {Client,join, Chanel}) ->
+    ChannelExists = lists:member(Chanel, Server),
+    if
+        ChannelExists == true ->
+        RequestJoin = genserver:request(list_to_atom(Chanel), {join, Client}), %try to join
+        if
+            RequestJoin == approved ->
+            {reply, approved, Server}; %Client not in channel
+            true -> %else
+            {reply, denied, Server} %Client is in channel
+        end;
+        true -> %if channel doesn't exist: create a new channel
         genserver:start(list_to_atom(Chanel), [Client], fun chanel_handeler/2),
-        {reply, joined, [Chanel | Server]}
-
+        {reply, approved, [Chanel | Server]}
     end;
-        
-
+    
 handel(Server, stop_server) ->
-    io:format("Stop"),
-    genserver:stop(Server).
+genserver:stop(Server).
+
 
 chanel_handeler(Clients, {join, Client}) ->
-  case lists:member(Client, Clients) of
-    %Already in channel
-    true -> {reply, failed, Clients};
-    
-    %Not in channel
-    false -> {reply, joined, [Client | Clients]}
-        
-  end;
+case lists:member(Client, Clients) of
+    %Client is in channel
+    true -> {reply, anything_but_approved, Clients};
+    %Client not in channel
+    false -> {reply, approved, [Client | Clients]}
+end;
 
 chanel_handeler(Clients, {msg, Channel, Nick, Msg, Sender}) ->
     case lists:member(Sender, Clients) of

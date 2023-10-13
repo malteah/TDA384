@@ -30,20 +30,13 @@ initial_state(Nick, GUIAtom, ServerAtom) ->
 
 % Join channel
 handle(St, {join, Channel}) ->
-    %Todo 
-    
-    case lists:member(St#client_st.server, registered()) of
-    %Server is active
-        true -> Result = genserver:request(St#client_st.server, {join, Channel, self()}),
-        case Result of
-          %{joined, Pid} ->
-          joined ->
+    RequestJoin = genserver:request(St#client_st.server, {self(),join,Channel}),
+    if
+        RequestJoin == approved -> %adds the channel to clients channels
             {reply, ok, St#client_st{channels = [Channel | St#client_st.channels]}};
-          failed -> {reply, {error, user_already_joined, "Already in channel"}, St}
-        end;
-    %Server unreachable
-    false -> {reply, {error, server_not_reached, "server not availible"}, St}
-  end;
+        true -> %else (denied)
+            {reply, {error,user_already_joined,"You are already in this channel"}, St}
+    end;
 
   
 %     % TODO: Implement this function
