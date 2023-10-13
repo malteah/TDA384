@@ -49,11 +49,11 @@ chanel_handeler(Clients, {join, Client}) ->
         
   end;
 
-chanel_handeler(Clients, {msg, Channel, Nick, Msg, From}) ->
-    case lists:member(From, Clients) of
+chanel_handeler(Clients, {msg, Channel, Nick, Msg, Sender}) ->
+    case lists:member(Sender, Clients) of
         true ->
             spawn(fun() -> lists:foreach(fun(Pid) -> 
-                        case Pid == From of
+                        case Pid == Sender of
                             true -> skip;
                             false -> genserver:request(Pid, {message_receive, Channel, Nick, Msg}) 
                         end
@@ -65,21 +65,7 @@ chanel_handeler(Clients, {msg, Channel, Nick, Msg, From}) ->
         false -> {reply, failed, Clients}
     end.
 
-% chanel_handeler(Clients, {msg, Channel, Nick, Msg, From}) ->
-%   case lists:member(From, Clients) of
-%     %In channel
-%     true -> spawn(fun() -> lists:foreach(
-%       fun(Pid) ->
-%         if
-%           Pid == From -> skip;
-%           true -> genserver:request(Pid, {message_receive, Channel, Nick, Msg})
-%         end
-%       end,
-%       Clients) end),
-%       {reply, ok, Clients};
-%     %Not in channel
-%     false -> {reply, failed, Clients}
-%   end.
+
 
 
 
@@ -109,5 +95,5 @@ chanel_handeler(Clients, {msg, Channel, Nick, Msg, From}) ->
 % together with any other associated processes
 stop(ServerAtom) ->
     % TODO Implement function
-    % Return ok
-    exit(ServerAtom, ok).
+    genserver:request(ServerAtom, disconk),
+    genserver:stop(ServerAtom).

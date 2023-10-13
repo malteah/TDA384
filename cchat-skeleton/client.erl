@@ -35,12 +35,12 @@ handle(St, {join, Channel}) ->
     case lists:member(St#client_st.server, registered()) of
     %Server is active
         true -> Result = genserver:request(St#client_st.server, {join, Channel, self()}),
-      case Result of
-        %{joined, Pid} ->
-        joined ->
-          {reply, ok, St#client_st{channels = [Channel | St#client_st.channels]}};
-        failed -> {reply, {error, user_already_joined, "Already in channel"}, St}
-      end;
+        case Result of
+          %{joined, Pid} ->
+          joined ->
+            {reply, ok, St#client_st{channels = [Channel | St#client_st.channels]}};
+          failed -> {reply, {error, user_already_joined, "Already in channel"}, St}
+        end;
     %Server unreachable
     false -> {reply, {error, server_not_reached, "server not availible"}, St}
   end;
@@ -57,6 +57,7 @@ handle(St, {join, Channel}) ->
 % Leave channel
 handle(St, {leave, Channel}) ->
     % TODO: Implement this function
+    lists:delete(Channel, St#client_st.channels),
     
     {reply, ok, St} ;
     %{reply, {error, not_implemented, "leave not implemented"}, St} ;
