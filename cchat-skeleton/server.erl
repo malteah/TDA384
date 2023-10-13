@@ -31,14 +31,15 @@ handel(Server, {Client,join, Chanel}) ->
         {reply, approved, [Chanel | Server]}
     end;
 
-handel(Server, disconnect) ->
-    lists:foreach(fun(chanel)  -> genserver:stop(list_to_atom(chanel)) end, Server),
-    {reply, ok, []};
+% handel(Server, disconnect) ->
+%     lists:foreach(fun(chanel)  -> genserver:stop(list_to_atom(chanel)) end, Server),
+%     {reply, ok, []};
         
+    handel(Server, kill_channels) ->
+        lists:foreach(fun(Ch) -> genserver:stop(list_to_atom(Ch)) end, Server),
+        {reply, ok, []}.
 
-    
-handel(Server, stop_server) ->
-genserver:stop(Server).
+
 
 
 chanel_handeler(Clients, {join, Client}) ->
@@ -64,36 +65,10 @@ chanel_handeler(Clients, {msg, Channel, Nick, Msg, Sender}) ->
 
         false -> {reply, failed, Clients}
     end.
-
-
-
-
-
-% Funtion för varige komando?
-%~ Chanel
-%TODO Join   
-
-
-%TODO Leave
-%TODO Leave channel
-
-%~ user
-%ToDo who am i
-% TODO nick
-% TODO nick new nic
-%TODo quit
-
-
-            
-
-    
-
-  
-    
-
 % Stop the server process registered to the given name,
 % together with any other associated processes
 stop(ServerAtom) ->
     % TODO Implement function
-    genserver:request(ServerAtom, disconnect),
+    % genserver:request(ServerAtom, disconnect),
+    genserver:request(ServerAtom, kill_channels),
     genserver:stop(ServerAtom).

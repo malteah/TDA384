@@ -50,17 +50,23 @@ handle(St, {join, Channel}) ->
 % Leave channel
 handle(St, {leave, Channel}) ->
     % TODO: Implement this function
-    lists:delete(Channel, St#client_st.channels),
+    ClientInChannel = lists:member(Channel,St#client_st.channels),
+    if
+         ClientInChannel == true ->
+            lists:delete(Channel, St#client_st.channels),
+            {reply,ok,St};
+        true -> %else
+            {reply,ok,St}
+    end;
     
-    {reply, ok, St} ;
     %{reply, {error, not_implemented, "leave not implemented"}, St} ;
 
 % Sending message (from GUI, to channel)
 
 
 handle(St, {message_send, Channel, Msg}) ->
-  Awnser = genserver:request(list_to_atom(Channel), {msg, Channel, St#client_st.nick, Msg, self()}),
-  case Awnser of
+  Answer = genserver:request(list_to_atom(Channel), {msg, Channel, St#client_st.nick, Msg, self()}),
+  case Answer of
     %In channel
     ok -> {reply, ok, St};
     %Not in channel
@@ -92,4 +98,4 @@ handle(St, quit) ->
 
 % Catch-all for any unhandled requests
 handle(St, Data) ->
-    {reply, {error, not_implemented, "Client does not handle this command"}, St} .
+    {reply, {error, not_implemented, "Client does not handle this command"}, St}.
