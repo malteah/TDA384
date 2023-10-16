@@ -60,40 +60,31 @@ handle(St, {leave, Channel}) ->
     end;
 
 
+
 % Sending message (from GUI, to channel)
 handle(St, {message_send, Channel, Msg}) ->
-    ServerExists = lists:member(St#client_st.server,registered()),
+
     ChannelExists = lists:member(list_to_atom(Channel),registered()),
-    if 
-        ServerExists == false andalso ChannelExists == false  ->
-            {reply, {error,server_not_reached,"Server does not exist"},St};
-        ServerExists == false andalso ChannelExists == true ->
-            SelfInChannel = lists:member(Channel,St#client_st.channels),
-            if
-                SelfInChannel == true ->
-
-                    lists:foreach(fun(Client) when Client =/= self() ->
-                        handle(Client, {message_receive,Channel,St#client_st.nick,Msg});
-                    (Client) when Client == self() ->
-                        ok %<=>ignore when
-                    end,Channel),
-                    {reply, ok, Channel};
-                true -> %Self not in channel
-                    {reply, failed, Channel}
-            end;
-        ServerExists == true -> 
-            try
-                Answer = genserver:request(list_to_atom(Channel), {self(), St#client_st.nick, Msg, Channel}),
-                case Answer of
-                    ok -> {reply, ok, St}; %In channel
-                    failed -> {reply, {error, user_not_joined, "You have not joined this channel"}, St} %Not in channel
-                end
-            catch
-                _:_ ->
-                {reply, {error,server_not_reached,"Not in server"}, St}
+    SelfInChannel = lists:member(Channel,St#client_st.channels),
+    case ChannelExists of
+        false -> {reply, {error,server_not_reached,"Server does not exist"},St};
+        true ->
+            case SelfInChannel of
+                false -> {reply, {error, user_not_joined, "You have not joined this channel"}, St};
+                true ->
+                    try
+                        Answer = genserver:request(list_to_atom(Channel), {self(), St#client_st.nick, Msg, Channel}),
+                        case Answer of
+                            ok -> {reply, ok, St}; %In channel
+                            failed -> {reply, {error, user_not_joined, "You have not joined this channel"}, St} %Not in channel
+                        end
+                    catch
+                        _:_ ->
+                        {reply, {error,server_not_reached,"Not in server"}, St}
+                    end
             end
-
     end;
+
 
     
 
