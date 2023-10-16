@@ -65,20 +65,15 @@ handle(St, {leave, Channel}) ->
 handle(St, {message_send, Channel, Msg}) ->
 
     ChannelExists = lists:member(list_to_atom(Channel),registered()),
-    case ChannelExists of
+        case ChannelExists of
         false -> {reply, {error,server_not_reached,"Server does not exist"},St};
         true ->
              SelfInChannel = lists:member(Channel,St#client_st.channels),
             case SelfInChannel of
                 false -> {reply, {error, user_not_joined, "You have not joined this channel"}, St};
                 true ->
-                    try
                         genserver:request(list_to_atom(Channel), {self(), St#client_st.nick, Msg, Channel}),
                         {reply, ok, St} %In channel
-                    catch
-                        _:_ ->
-                        {reply, {error,server_not_reached,"Not in server"}, St}
-                    end
             end
     end;
 
