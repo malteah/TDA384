@@ -54,18 +54,13 @@ chanel_handeler(Channel, {leave, Client}) ->
 
 
 chanel_handeler(Channel, {Sender, Nick, Msg, ChannelID}) ->
-    SenderInChannel = lists:member(Sender,Channel),
-    if 
-        SenderInChannel == true ->
-            lists:foreach(fun(Pid) when Pid =/= Sender ->
-                genserver:request(Pid, {message_receive,ChannelID,Nick,Msg});
-            (Pid) when Pid == Sender ->
-                ok %<=>ignore when
-            end,Channel),
-            {reply, ok, Channel};
-        true -> %else
-            {reply, failed, Channel}
-    end.
+    lists:foreach(fun(Pid) when Pid =/= Sender ->
+        genserver:request(Pid, {message_receive,ChannelID,Nick,Msg});
+    (Pid) when Pid == Sender ->
+        ok %<=>ignore when
+    end,Channel),
+    {reply, ok, Channel}.
+        
 
 % Stop the server process registered to the given name,
 % together with any other associated processes
