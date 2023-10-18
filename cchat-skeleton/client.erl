@@ -51,15 +51,13 @@ handle(St, {join, Channel}) ->
 
 % Leave channel
 handle(St, {leave, Channel}) ->
-    TryLeave = genserver:request(list_to_atom(Channel), {leave, self()}),
+    TryLeave = genserver:request(list_to_atom(Channel), {self(),leave}),
     if
         TryLeave == success -> 
             {reply, ok, St#client_st{channels = lists:delete(Channel,St#client_st.channels)}};
         TryLeave == fail ->
             {reply, {error,user_not_joined,"You have not joined this channel"}, St}
     end;
-
-
 
 % Sending message (from GUI, to channel)
 handle(St, {message_send, Channel, Msg}) ->

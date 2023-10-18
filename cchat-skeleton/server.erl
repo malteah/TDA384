@@ -18,7 +18,7 @@ handel(Server, {Client,join, Chanel}) ->
     ChannelExists = lists:member(Chanel, Server),
     if
         ChannelExists == true ->
-            RequestJoin = genserver:request(list_to_atom(Chanel), {join, Client}), %try to join
+            RequestJoin = genserver:request(list_to_atom(Chanel), {Client,join}), %try to join
             if
                 RequestJoin == approved ->
                     {reply, approved, Server}; %Client not in channel
@@ -30,28 +30,18 @@ handel(Server, {Client,join, Chanel}) ->
         {reply, approved, [Chanel | Server]}
     end;
 
+handel(Server, stopChannels) ->
+    lists:foreach(fun(Channel) -> 
+        genserver:stop(list_to_atom(Channel)),
+        Server = lists:delete(list_to_atom(Channel), Server)
+    end, Server),
+    {reply, ok, Server}.
 
 
-
-handel(Server, kill_channels) ->
-    lists:foreach(fun(Ch) -> genserver:stop(list_to_atom(Ch)) end, Server),
-    {reply, ok, []}.
-
-
-chanel_handeler(Channel, {join, Client}) ->
+chanel_handeler(Channel, {Client, join}) ->
     case lists:member(Client, Channel) of
-        %Client is in channel
-        true -> {reply, anything_but_approved, Channel};
-        %Client not in channel
-        false -> {reply, approved, [Client | Channel]}
-    end;
-
-chanel_handeler(Channel, {leave, Client}) -> 
-    case lists:member(Client, Channel) of
-    %Client is in channel
-    true -> {reply, success, lists:delete(Client,Channel)};
-    %Client not in channel
-    false -> {reply, fail, Channel}
+        true -> {reply, anything_but_approved, Channel}; %Client is in channel
+        false -> {reply, approved, [Client | Channel]} %Client not in channel
     end;
         
 chanel_handeler(Channel, {Sender, Nick, Msg, ChannelID}) ->
@@ -60,11 +50,17 @@ chanel_handeler(Channel, {Sender, Nick, Msg, ChannelID}) ->
     (Pid) when Pid == Sender ->
         ok %<=>ignore when
     end,Channel)end),
-    {reply, ok, Channel}.
+    {reply, ok, Channel};
+
+chanel_handeler(Channel, {Client,leave}) -> 
+    case lists:member(Client, Channel) of
+    true -> {reply, success, lists:delete(Client,Channel)}; %Client is in channel
+    false -> {reply, fail, Channel} %Client not in channel
+    end.
 
 % Stop the server process registered to the given name,
 % together with any other associated processes
 stop(ServerAtom) ->
     % TODO Implement function
-    genserver:request(ServerAtom, kill_channels),
+    genserver:request(ServerAtom, stopChannels),
     genserver:stop(ServerAtom).
