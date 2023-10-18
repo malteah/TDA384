@@ -31,6 +31,8 @@ handel(Server, {Client,join, Chanel}) ->
     end;
 
 
+
+
 handel(Server, kill_channels) ->
     lists:foreach(fun(Ch) -> genserver:stop(list_to_atom(Ch)) end, Server),
     {reply, ok, []}.
@@ -51,16 +53,14 @@ chanel_handeler(Channel, {leave, Client}) ->
     %Client not in channel
     false -> {reply, fail, Channel}
     end;
-
-
+        
 chanel_handeler(Channel, {Sender, Nick, Msg, ChannelID}) ->
-    lists:foreach(fun(Pid) when Pid =/= Sender ->
+    spawn(fun() -> lists:foreach(fun(Pid) when Pid =/= Sender -> %spawn/1 allows parallel execution (creates a new process for each element in the list)
         genserver:request(Pid, {message_receive,ChannelID,Nick,Msg});
     (Pid) when Pid == Sender ->
         ok %<=>ignore when
-    end,Channel),
+    end,Channel)end),
     {reply, ok, Channel}.
-        
 
 % Stop the server process registered to the given name,
 % together with any other associated processes
